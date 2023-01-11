@@ -1,14 +1,47 @@
 import icons from 'url:../../img/icons.svg';
 export default class View {
   _data;
-  render(data) {
+  render(data, render = true) {
     if (!data || (Array.isArray(data) && data.length === 0))
       return this.renderError();
 
     this._data = data;
     const markup = this._generateMarkup();
+
+    if (!render) return markup;
+
     this._clear();
     this._parentElement.insertAdjacentHTML('afterbegin', markup);
+  }
+
+  udpdate(data) {
+    this._data = data;
+    const newMarkup = this._generateMarkup();
+
+    const newDOM = document.createRange().createContextualFragment(newMarkup);
+    const newElemet = Array.from(newDOM.querySelectorAll('*'));
+    const currentElement = Array.from(
+      this._parentElement.querySelectorAll('*')
+    );
+
+    newElemet.forEach((newEl, i) => {
+      const curEl = currentElement[i];
+
+      //Update change TEXT
+      if (
+        !newEl.isEqualNode(currentElement) &&
+        newEl.firstChild?.nodeValue.trim() !== ''
+      ) {
+        currentElement.textContent = newEl.textContent;
+      }
+
+      //Update changed ATTRIBUTES
+      if (!newEl.isEqualNode(currentElement)) {
+        Array.from(newEl.attributes).forEach(
+          attr => currentElement.setAttribute(attr.name, attr.value) //Gerenar un Array con los atributos del nuevo elemento para setearlos en el currentElement
+        );
+      }
+    });
   }
 
   _clear() {
@@ -17,7 +50,7 @@ export default class View {
 
   renderSpinner() {
     const markup = `
-    <div class="spinner">
+    <div class="spinner"> 
       <svg>
         <use href="${icons}#icon-loader"></use>
       </svg>
