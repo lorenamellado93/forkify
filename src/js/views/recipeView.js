@@ -1,12 +1,14 @@
-import View from './View';
+import View from './View.js';
 
-import icons from 'url:../../img/icons.svg';
+// import icons from '../img/icons.svg'; // Parcel 1
+import icons from 'url:../../img/icons.svg'; // Parcel 2
 import { Fraction } from 'fractional';
 
 class RecipeView extends View {
   _parentElement = document.querySelector('.recipe');
-  _errorMessage = 'We could not find that recipe. Please try other recipe';
+  _errorMessage = 'We could not find that recipe. Please try another one!';
   _message = '';
+
   addHandlerRender(handler) {
     ['hashchange', 'load'].forEach(ev => window.addEventListener(ev, handler));
   }
@@ -137,4 +139,4 @@ class RecipeView extends View {
   }
 }
 
-export default new RecipeView(); //AL exportarlo así no pasa datos y no se necesita un constructor donde se vaya a usar (controler.js)
+export default new RecipeView();
