@@ -1,16 +1,17 @@
 import * as model from './model';
 import recipeView from './views/recipeView';
 import searchView from './views/searchView';
-import resultView from './views/resultView';
+import resultsView from './views/resultView';
 import paginationView from './views/paginationView';
+import bookmarksView from './views/bookmarksView';
 
 import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 import { async } from 'regenerator-runtime';
 
-/* if (module.hot) {
+if (module.hot) {
   module.hot.accept();
-} */
+}
 
 // https://forkify-api.herokuapp.com/v2
 
@@ -24,13 +25,14 @@ const controlRecipes = async function () {
     recipeView.renderSpinner();
 
     // 0) Update results view to mark selected search result
-    resultView.update(model.getSearchResultPage(1));
+    resultsView.update(model.getSearchResultsPage());
 
     // 2) Loading recipe
     await model.loadRecipe(id);
 
     // 3) Rendering recipe
     recipeView.render(model.state.recipe);
+    bookmarksView.update(model.state.bookmarks);
   } catch (err) {
     recipeView.renderError();
     console.error(err);
@@ -39,8 +41,7 @@ const controlRecipes = async function () {
 
 const controlSearchResults = async function () {
   try {
-    resultView.renderSpinner();
-    console.log(resultView);
+    resultsView.renderSpinner();
     //1) Get search query
     const query = searchView.getQuery();
     if (!query) return;
@@ -49,7 +50,7 @@ const controlSearchResults = async function () {
     await model.loadSearchResult(query);
 
     //3)Render results
-    resultView.render(model.state.search.results);
+    resultsView.render(model.state.search.results);
 
     //4) Render initial paginations buttons
     paginationView.render(model.state.search);
@@ -60,7 +61,7 @@ const controlSearchResults = async function () {
 
 const controlPagination = function (goToPage) {
   //1)Render new results
-  resultView.render(model.getSearchResultPage(goToPage));
+  resultsView.render(model.getSearchResultsPage(goToPage));
 
   //2) Render new paginations buttons
   paginationView.render(model.state.search);
@@ -74,9 +75,28 @@ const controlServings = function (newServings) {
   recipeView.update(model.state.recipe);
 };
 
+const controlAddBookmark = function () {
+  //1) Add/remove bookmark
+  if (!model.state.recipe.bookmarked) {
+    model.addBookmark(model.state.recipe);
+  } else {
+    model.deleteBookmark(model.state.recipe.id);
+  }
+  //2) Update recipe view
+  recipeView.update(model.state.recipe);
+  //3) Render bookmarks
+  bookmarksView.render(model.state.bookmarks);
+};
+
+const controlBookmarks = function () {
+  bookmarksView.render(model.state.bookmarks);
+};
+
 const init = function () {
+  bookmarksView.addHandlerRender(controlBookmarks);
   recipeView.addHandlerRender(controlRecipes);
   recipeView.addHandlerUpdateServings(controlServings);
+  recipeView.addHandlerAddBookmark(controlAddBookmark);
   searchView.addHandlerSearch(controlSearchResults);
   paginationView.addHandlerClick(controlPagination);
 };

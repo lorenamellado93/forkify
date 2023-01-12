@@ -14,7 +14,7 @@ export default class View {
     this._parentElement.insertAdjacentHTML('afterbegin', markup);
   }
 
-  udpdate(data) {
+  update(data) {
     this._data = data;
     const newMarkup = this._generateMarkup();
 
@@ -29,16 +29,16 @@ export default class View {
 
       //Update change TEXT
       if (
-        !newEl.isEqualNode(currentElement) &&
+        !newEl.isEqualNode(curEl) &&
         newEl.firstChild?.nodeValue.trim() !== ''
       ) {
-        currentElement.textContent = newEl.textContent;
+        curEl.textContent = newEl.textContent;
       }
 
       //Update changed ATTRIBUTES
-      if (!newEl.isEqualNode(currentElement)) {
+      if (!newEl.isEqualNode(curEl)) {
         Array.from(newEl.attributes).forEach(
-          attr => currentElement.setAttribute(attr.name, attr.value) //Gerenar un Array con los atributos del nuevo elemento para setearlos en el currentElement
+          attr => curEl.setAttribute(attr.name, attr.value) //Gerenar un Array con los atributos del nuevo elemento para setearlos en el currentElement
         );
       }
     });
